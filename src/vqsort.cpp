@@ -1,4 +1,5 @@
 #include "hwy/contrib/sort/vqsort.h"
+#include "hwy/base.h"
 
 extern "C" {
 void vqsort_i16(int16_t *data, size_t len) {
@@ -46,6 +47,14 @@ void vqsort_u64(uint64_t *data, size_t len) {
 }
 
 void vqsort_u64_descending(uint64_t *data, size_t len) {
+  VQSort(data, len, hwy::SortDescending{});
+}
+
+void vqsort_u128(hwy::uint128_t *data, size_t len) {
+  VQSort(data, len, hwy::SortAscending{});
+}
+
+void vqsort_u128_descending(hwy::uint128_t *data, size_t len) {
   VQSort(data, len, hwy::SortDescending{});
 }
 

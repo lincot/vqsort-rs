@@ -75,3 +75,36 @@ macro_rules! vqsort_u {
 impl VqsortItem for usize {
     vqsort_u! { 16 32 64 }
 }
+
+// highway uses a 16-bytes aligned uint128_t.
+// Rust has u128 aligned the same way since 1.77:
+// [#116672](https://github.com/rust-lang/rust/pull/116672)
+#[rustversion::since(1.77)]
+#[allow(improper_ctypes)]
+extern "C" {
+    fn vqsort_u128(data: *mut u128, len: usize);
+    fn vqsort_u128_descending(data: *mut u128, len: usize);
+}
+
+#[rustversion::since(1.77)]
+impl VqsortItem for u128 {
+    #[inline]
+    fn sort(data: &mut [Self]) {
+        assert_eq!(core::mem::align_of::<u128>(), 16);
+        if cfg!(miri) {
+            data.sort_unstable();
+        } else {
+            unsafe { vqsort_u128(data.as_mut_ptr(), data.len()) };
+        }
+    }
+
+    #[inline]
+    fn sort_descending(data: &mut [Self]) {
+        assert_eq!(core::mem::align_of::<u128>(), 16);
+        if cfg!(miri) {
+            data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
+        } else {
+            unsafe { vqsort_u128_descending(data.as_mut_ptr(), data.len()) };
+        }
+    }
+}
