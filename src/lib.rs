@@ -1,13 +1,19 @@
+//! Rust bindings for the Google Highway's
+//! [vectorized quicksort](https://github.com/google/highway/tree/master/hwy/contrib/sort).
+
 #![no_std]
 
+/// Sorts `data` in ascending order.
 pub fn sort<T: VqsortItem>(data: &mut [T]) {
     VqsortItem::sort(data);
 }
 
+/// Sorts `data` in descending order.
 pub fn sort_descending<T: VqsortItem>(data: &mut [T]) {
     VqsortItem::sort_descending(data);
 }
 
+/// A trait for types that can be sorted.
 pub trait VqsortItem: Sized {
     fn sort(data: &mut [Self]);
     fn sort_descending(data: &mut [Self]);
