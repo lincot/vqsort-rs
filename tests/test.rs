@@ -3,6 +3,8 @@
 use rand::Rng;
 use rand_pcg::Pcg64Mcg;
 
+const BUF_SIZE: usize = if cfg!(miri) { 25 } else { 1 << 12 };
+
 macro_rules! gen_tests {
     ($($t:ty)*) => ($(
         paste::paste! {
@@ -17,7 +19,7 @@ macro_rules! gen_tests {
                 assert_eq!(arr, [8u8.into(), 5u8.into(), 3u8.into(), 0u8.into()]);
 
                 let mut rng = Pcg64Mcg::new(0xcafe_f00d_d15e_a5e5);
-                let mut buf: [$t; 1 << 12] = [0u8.into(); 1 << 12];
+                let mut buf: [$t; BUF_SIZE] = [0u8.into(); BUF_SIZE];
                 for _ in 0..10 {
                     let len = rng.gen_range(0..buf.len());
                     let data = &mut buf[..len];
