@@ -6,7 +6,7 @@ Rust bindings for the Google Highway's
 The sorting algorithm is very fast as seen in a
 [research](https://github.com/Voultapher/sort-research-rs/blob/main/writeup/intel_avx512/text.md)
 and far outperforms the standard Rust sort_unstable. However,
-it can only be used with integers and floats up to 64 bits.
+it can only be used with primitive integers and floats.
 
 ## Example
 

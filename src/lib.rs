@@ -46,6 +46,36 @@ macro_rules! vqsort_impl {
 
 vqsort_impl! { i16 u16 i32 u32 i64 u64 f32 f64 }
 
+macro_rules! vqsort_i {
+    ($($t:expr)*) => ($(
+        paste::paste! {
+            #[cfg(target_pointer_width = "" $t)]
+            #[inline]
+            fn sort(data: &mut [Self]) {
+                if cfg!(miri) {
+                    data.sort_unstable();
+                } else {
+                    unsafe { [<vqsort_i $t>](data.as_mut_ptr().cast(), data.len()) };
+                }
+            }
+
+            #[cfg(target_pointer_width = "" $t)]
+            #[inline]
+            fn sort_descending(data: &mut [Self]) {
+                if cfg!(miri) {
+                    data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
+                } else {
+                    unsafe { [<vqsort_i $t _descending>](data.as_mut_ptr().cast(), data.len()) };
+                }
+            }
+        }
+    )*)
+}
+
+impl VqsortItem for isize {
+    vqsort_i! { 16 32 64 }
+}
+
 macro_rules! vqsort_u {
     ($($t:expr)*) => ($(
         paste::paste! {

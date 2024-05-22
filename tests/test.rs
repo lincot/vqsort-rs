@@ -39,7 +39,7 @@ macro_rules! gen_tests {
     )*)
 }
 
-gen_tests! { i16 u16 i32 u32 i64 u64 usize f32 f64 }
+gen_tests! { i16 u16 i32 u32 i64 u64 isize usize f32 f64 }
 #[rustversion::since(1.77)]
 gen_tests! { u128 }
 
