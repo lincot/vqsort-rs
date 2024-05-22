@@ -8,6 +8,17 @@ The sorting algorithm is very fast as seen in a
 and far outperforms the standard Rust sort_unstable. However,
 it can only be used with integers and floats up to 64 bits.
 
+## Example
+
+```rust
+let mut data = [5, 3, 8, 0, -100];
+vqsort_rs::sort(&mut data);
+assert_eq!(data, [-100, 0, 3, 5, 8]);
+
+vqsort_rs::sort_descending(&mut data);
+assert_eq!(data, [8, 5, 3, 0, -100]);
+```
+
 ## Miri
 
 When testing with Miri, the crate resorts to sort_unstable,
