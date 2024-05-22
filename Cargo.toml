@@ -7,7 +7,7 @@ keywords = ["fast", "simd", "sort", "sorting"]
 license = "Apache-2.0 OR BSD-3-Clause"
 name = "vqsort-rs"
 repository = "https://github.com/lincot/vqsort-rs"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 paste = "1.0.15"
