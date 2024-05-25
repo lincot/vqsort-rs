@@ -52,26 +52,26 @@ macro_rules! vqsort_impl {
 
 vqsort_impl! { i16 u16 i32 u32 i64 u64 f32 f64 }
 
-macro_rules! vqsort_i {
-    ($($t:expr)*) => ($(
+macro_rules! vqsort_size_impl {
+    ($($size:expr => $t:ty,)*) => ($(
         paste::paste! {
-            #[cfg(target_pointer_width = "" $t)]
+            #[cfg(target_pointer_width = "" $size)]
             #[inline]
             fn sort(data: &mut [Self]) {
                 if cfg!(miri) {
                     data.sort_unstable();
                 } else {
-                    unsafe { [<vqsort_i $t>](data.as_mut_ptr().cast(), data.len()) };
+                    unsafe { [<vqsort_ $t>](data.as_mut_ptr().cast(), data.len()) };
                 }
             }
 
-            #[cfg(target_pointer_width = "" $t)]
+            #[cfg(target_pointer_width = "" $size)]
             #[inline]
             fn sort_descending(data: &mut [Self]) {
                 if cfg!(miri) {
                     data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
                 } else {
-                    unsafe { [<vqsort_i $t _descending>](data.as_mut_ptr().cast(), data.len()) };
+                    unsafe { [<vqsort_ $t _descending>](data.as_mut_ptr().cast(), data.len()) };
                 }
             }
         }
@@ -79,37 +79,19 @@ macro_rules! vqsort_i {
 }
 
 impl VqsortItem for isize {
-    vqsort_i! { 16 32 64 }
-}
-
-macro_rules! vqsort_u {
-    ($($t:expr)*) => ($(
-        paste::paste! {
-            #[cfg(target_pointer_width = "" $t)]
-            #[inline]
-            fn sort(data: &mut [Self]) {
-                if cfg!(miri) {
-                    data.sort_unstable();
-                } else {
-                    unsafe { [<vqsort_u $t>](data.as_mut_ptr().cast(), data.len()) };
-                }
-            }
-
-            #[cfg(target_pointer_width = "" $t)]
-            #[inline]
-            fn sort_descending(data: &mut [Self]) {
-                if cfg!(miri) {
-                    data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
-                } else {
-                    unsafe { [<vqsort_u $t _descending>](data.as_mut_ptr().cast(), data.len()) };
-                }
-            }
-        }
-    )*)
+    vqsort_size_impl! {
+        16 => i16,
+        32 => i32,
+        64 => i64,
+    }
 }
 
 impl VqsortItem for usize {
-    vqsort_u! { 16 32 64 }
+    vqsort_size_impl! {
+        16 => u16,
+        32 => u32,
+        64 => u64,
+    }
 }
 
 // highway uses a 16-bytes aligned uint128_t.
