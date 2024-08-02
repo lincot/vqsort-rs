@@ -9,6 +9,7 @@ macro_rules! gen_tests {
     ($($t:ty)*) => ($(
         paste::paste! {
             #[test]
+            #[allow(clippy::float_cmp)]
             fn [<test_vqsort_ $t>]() {
                 let mut arr: [$t; 4] = [5u8.into(), 3u8.into(), 8u8.into(), 0u8.into()];
                 vqsort_rs::sort(&mut arr);

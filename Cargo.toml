@@ -23,3 +23,8 @@ rand_pcg = "0.3.1"
 
 [package.metadata.system-deps]
 libhwy-contrib = "1"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
+nursery = "deny"

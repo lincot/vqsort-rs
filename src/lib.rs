@@ -108,7 +108,7 @@ extern "C" {
 impl VqsortItem for u128 {
     #[inline]
     fn sort(data: &mut [Self]) {
-        assert_eq!(core::mem::align_of::<u128>(), 16);
+        assert_eq!(core::mem::align_of::<Self>(), 16);
         if cfg!(miri) {
             data.sort_unstable();
         } else {
@@ -118,7 +118,7 @@ impl VqsortItem for u128 {
 
     #[inline]
     fn sort_descending(data: &mut [Self]) {
-        assert_eq!(core::mem::align_of::<u128>(), 16);
+        assert_eq!(core::mem::align_of::<Self>(), 16);
         if cfg!(miri) {
             data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
         } else {
