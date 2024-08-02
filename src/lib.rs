@@ -1,4 +1,4 @@
-//! Rust bindings for the Google Highway's
+//! Rust bindings for the Google Highway
 //! [vectorized quicksort](https://github.com/google/highway/tree/master/hwy/contrib/sort).
 
 #![no_std]
