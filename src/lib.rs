@@ -3,6 +3,12 @@
 
 #![no_std]
 
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
+
 /// Sorts `data` in ascending order.
 pub fn sort<T: VqsortItem>(data: &mut [T]) {
     VqsortItem::sort(data);
@@ -125,4 +131,77 @@ impl VqsortItem for u128 {
             unsafe { vqsort_u128_descending(data.as_mut_ptr(), data.len()) };
         }
     }
+}
+
+macro_rules! vqsort_kv_impl {
+    ($($size:literal => $align:literal,)*) => ($(
+        paste::paste! {
+            #[repr(C, align($align))]
+            #[derive(Debug, Clone, Copy, Eq, PartialEq, Default)]
+            pub struct [<Key $size Value $size>] {
+                pub value: [<u $size>],
+                pub key: [<u $size>],
+            }
+
+            impl PartialOrd for [<Key $size Value $size>] {
+                fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+                    Some(self.cmp(other))
+                }
+            }
+
+            impl Ord for [<Key $size Value $size>] {
+                fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+                    match self.key.cmp(&other.key) {
+                        core::cmp::Ordering::Equal => self.value.cmp(&other.value),
+                        non_eq => non_eq,
+                    }
+                }
+            }
+
+            #[cfg(feature = "rand")]
+            impl Distribution<[<Key $size Value $size>]> for Standard {
+                fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> [<Key $size Value $size>] {
+                    [<Key $size Value $size>] {
+                        value: rng.gen(),
+                        key: rng.gen(),
+                    }
+                }
+            }
+
+            extern "C" {
+                fn [<vqsort_k $size v $size>](data: *mut [<Key $size Value $size>], len: usize);
+                fn [<vqsort_k $size v $size _descending>](
+                    data: *mut [<Key $size Value $size>],
+                    len: usize,
+                );
+            }
+
+            impl VqsortItem for [<Key $size Value $size>] {
+                #[inline]
+                fn sort(data: &mut [Self]) {
+                    if cfg!(miri) {
+                        data.sort_unstable();
+                    } else {
+                        unsafe { [<vqsort_k $size v $size>](data.as_mut_ptr(), data.len()) };
+                    }
+                }
+
+                #[inline]
+                fn sort_descending(data: &mut [Self]) {
+                    if cfg!(miri) {
+                        data.sort_unstable_by_key(|&x| core::cmp::Reverse(x));
+                    } else {
+                        unsafe {
+                            [<vqsort_k $size v $size _descending>](data.as_mut_ptr(), data.len());
+                        }
+                    }
+                }
+            }
+        }
+    )*)
+}
+
+vqsort_kv_impl! {
+    64 => 16,
+    32 => 8,
 }
